@@ -5,8 +5,8 @@
   "scripts": {
     "clean": "npx rimraf ./dist",
     "build": "npm run build:esbuild",
-    "dev": "npm run dev:esbuild",
-    "dev:esbuild": "NODE_ENV=local npm run clean &&  npx npm-run-all --parallel build:esbuild:watch",
+    "dev": "npx cross-env NODE_OPTIONS=--enable-source-maps npm run dev:esbuild",
+    "dev:esbuild": "npx cross-env NODE_ENV=local npm run clean &&  npx npm-run-all --parallel build:esbuild:watch typecheck:watch",
     "dev:tsc": "NODE_ENV=local npm run clean &&  npm run build:tsc:watch -- --onSuccess \"npm start\"",
     "start": "node dist/main.js",
     "start:watch1": "npx nodemon dist/main.js",
@@ -38,7 +38,9 @@
     "prepare": "npx husky",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs"
+    "docs:preview": "vitepress preview docs",
+    "typecheck": "tsc --noEmit",
+    "typecheck:watch": "tsc --noEmit --watch"
   },
   "_moduleAliases": {
     "@": "./dist"
