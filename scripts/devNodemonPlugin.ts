@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { spawn } from 'node:child_process';
-import esbuild from 'esbuild';
+// import tsdown from 'tsdown';
 
 let nodemonProcess: any = null;
 
@@ -46,21 +46,29 @@ function devNodemonPlugin(options: DevNodemonPluginOptions = {}) {
   const { type } = options;
   const name = type ? `${type}-dev-nodemon-plugin` : 'dev-nodemon-plugin';
   let started = false;
+  let watchMode = false;
   return {
     name,
-    setup(build: esbuild.PluginBuild) {
-      build.onEnd(() => {
-        if (!started) {
-          started = true;
-          devNodemonFn();
-          started = false;
-        }
-      });
+    buildStart(options: any) {
+      // 1) Rollup watch options（有時候會是物件）
+      watchMode = Boolean(options.watch);
+
+      // 2) 或用 this.meta.watchMode（若你的 Rollup 版本支援）
+      watchMode = Boolean((this as any).meta?.watchMode) || watchMode;
+    },
+    writeBundle() {
+      if (watchMode && !started) {
+        started = true;
+        console.log('Starting nodemon...');
+        devNodemonFn();
+        started = false;
+        console.log('Nodemon started successfully');
+      }
     },
   };
 }
 
-export const esbuildDevNodemonPlugin = () =>
+export const tsdownDevNodemonPlugin = () =>
   devNodemonPlugin({
-    type: 'esbuild',
+    type: 'tsdown',
   });
